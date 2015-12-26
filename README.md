@@ -1,1 +1,1 @@
-Eldritch Horro for the Web!
+Eldritch Horror for the Web!
