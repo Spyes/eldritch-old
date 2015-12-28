@@ -1,0 +1,15 @@
+<div ng-init="init()">
+  <h4>Investigators</h4>
+  <div ng-repeat="investigator in Investigators">
+    <ul>
+      <li><span class='selected'>{{investigator.name}}</span></li>
+    </ul>
+  </div>
+
+  <h4>Ancient Ones</h4>
+  <div ng-repeat="ancient_one in AncientOnes">
+    <span>{{ancient_one.name}}</span>
+  </div>
+
+  <input type='button' class='btn btn-success' value='Start' ng-click='startGame()' />
+</div>
