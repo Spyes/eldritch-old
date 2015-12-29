@@ -1,14 +1,22 @@
 <div ng-init="init()">
   <h4>Investigators</h4>
-  <div ng-repeat="investigator in Investigators">
+  <div>
     <ul>
-      <li><span class='selected'>{{investigator.name}}</span></li>
+      <li ng-repeat="investigator in Investigators">
+        <span ng-click='clickInvestigator(investigator)' class='clickable'
+              ng-class='{selected: selected_investigator == investigator.name}'>{{investigator.name}}</span>
+      </li>
     </ul>
   </div>
 
   <h4>Ancient Ones</h4>
-  <div ng-repeat="ancient_one in AncientOnes">
-    <span>{{ancient_one.name}}</span>
+  <div>
+    <ul>
+      <li ng-repeat="ancient_one in AncientOnes">
+        <span ng-click='clickAncientOne(ancient_one)' class='clickable'
+              ng-class='{selected: selected_ancient_one == ancient_one.name}'>{{ancient_one.name}}</span>
+      </li>
+    </ul>
   </div>
 
   <input type='button' class='btn btn-success' value='Start' ng-click='startGame()' />

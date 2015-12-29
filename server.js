@@ -27,6 +27,10 @@ app.get('/api/ancient_ones', function (req, res) {
   });
 });
 
+app.get('/api/get_entity', function (req, res) {
+  console.log(req.query);
+});
+
 var Mythos_Card = require('./models/mythos_card.js');
 app.get('/api/mythos_cards', function (req, res) {
   Mythos_Card.find(function (err, mythos_cards) {

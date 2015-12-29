@@ -1,3 +1,7 @@
 .selected {
-    font: #428BCA;
+    color: #428BCA;
+}
+
+.clickable {
+  cursor: pointer;
 }
