@@ -1,4 +1,4 @@
-app.controller('StartController', ['$scope', '$location', 'Database', function ($scope, $location, Database) {
+app.controller('StartController', ['$scope', '$rootScope', '$location', 'Database', function ($scope, $rootScope, $location, Database) {
   'use strict';
 
   $scope.startGame = function () {
@@ -15,12 +15,6 @@ app.controller('StartController', ['$scope', '$location', 'Database', function (
   };
 
   $scope.init = function () {
-    Database.getCollection('ancient_ones').then(function (res) {
-      $scope.AncientOnes = res.data.ancient_ones;
-    });
-    Database.getCollection('investigators').then(function (res) {
-      $scope.Investigators = res.data.investigators;
-    });
     $scope.selected_investigator = undefined;
     $scope.selected_ancient_one = undefined;
   };

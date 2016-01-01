@@ -1,7 +1,10 @@
 var mongoose = require('mongoose');
 module.exports = mongoose.model('Location', {
   name: String,
-  coords: String,
+  coords: {
+    x: Number,
+    y: Number
+  },
   continent: String,
   type: String,
   investigators: [],

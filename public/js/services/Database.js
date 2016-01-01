@@ -1,22 +1,15 @@
-app.factory('Database', ['$http', function ($http) {
+app.factory('Database', ['$http', '$rootScope', function ($http, $rootScope) {
   'use strict';
 
   function getCollection(coll) {
     if (coll === undefined || !_.isString(coll))
       return false;
-    return $http.get('/api/' + coll.toLowerCase());
-  }
-
-  function getInvestigator(inv) {
-    return $http.get('/api/get_entity', {params: {investigator: inv}});
-  }
-  function getAncientOne(ao) {
-    return $http.get('/api/get_entity', {params: {ancient_one: ao}});
+    $http.get('/api/' + coll.toLowerCase()).then(function (res) {
+      $rootScope[coll] = res.data.coll;
+    });
   }
   
   return {
-    getCollection: getCollection,
-    getInvestigator: getInvestigator,
-    getAncientOne: getAncientOne
+    getCollection: getCollection
   };
 }]);
