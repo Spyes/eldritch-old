@@ -54,8 +54,11 @@ app.controller('GameController', ['$scope', '$routeParams', '$rootScope', 'Colle
     $scope.fsm = new Stately();
     var states = {
       action: {
+        canPlayerDoAction: function (player, action) {
+          console.log('test');
+        },
 	onClickLocation: function (location) {
-	  if (!mommy.canPlayerDoAction($scope.player, 'move')) return;
+	  if (!this.emit('canPlayerDoAction', [$scope.player, 'move'])) return;
 	  moveInvestigator($scope.player.investigator, location);
 	}
       }
