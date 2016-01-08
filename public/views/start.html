@@ -1,10 +1,10 @@
-<div ng-init="init()">
+<div ng-init="start.init()">
   <h4>Investigators</h4>
   <div>
     <ul>
       <li ng-repeat="investigator in investigators">
-        <span ng-click='clickInvestigator(investigator)' class='clickable'
-              ng-class='{selected: selected_investigator == investigator.name}'>{{investigator.name}}</span>
+        <span ng-click='start.clickInvestigator(investigator)' class='clickable'
+              ng-class='{selected: start.selected_investigator == investigator.name}'>{{investigator.name}}</span>
       </li>
     </ul>
   </div>
@@ -13,11 +13,11 @@
   <div>
     <ul>
       <li ng-repeat="ancient_one in ancient_ones">
-        <span ng-click='clickAncientOne(ancient_one)' class='clickable'
-              ng-class='{selected: selected_ancient_one == ancient_one.name}'>{{ancient_one.name}}</span>
+        <span ng-click='start.clickAncientOne(ancient_one)' class='clickable'
+              ng-class='{selected: start.selected_ancient_one == ancient_one.name}'>{{ancient_one.name}}</span>
       </li>
     </ul>
   </div>
 
-  <input type='button' class='btn btn-success' value='Start' ng-click='startGame()' />
+  <input type='button' class='btn btn-success' value='Start' ng-click='start.startGame()' />
 </div>

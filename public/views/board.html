@@ -1,10 +1,10 @@
 <div class="game-board">
   <img src="eldritch_horror_map_resized.png" usemap="#Map"/>
   <map name="Map" id="Map">
-    <area ng-repeat="location in locations" shape="circle" coords="{{locationCoords(location)}}" ng-click="fsm.emit('onClickLocation', [location.name])"/>
+    <area ng-repeat="location in locations" shape="circle" coords="{{game.locationCoords(location)}}"  ng-click="game.clickLocation(location)" />
   </map>
-  <div class="location-info" ng-repeat="location in locations" ng-style="getLocationInfoStyle(location)" ng-click="clickLocation(location)">
-    <div class="player" ng-if="player.investigator.current_location === location.name">{{player.investigator.name}}</div>
+  <div class="location-info" ng-repeat="location in locations" ng-style="game.getLocationStyle(location)">
+    <div class="player" ng-if="game.player.investigator.current_location === location.name">{{game.player.investigator.name}}</div>
     <!--
     <div class="defeated" ng-if="defeatedInvestigatorsAt(location)">
       <span ng-repeat="investigator in getDefeatedInvestigatorsAt(location)">

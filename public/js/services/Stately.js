@@ -1,150 +1,126 @@
 function Stately(params) {
+  'use strict';
+
   var stately = this;
-  stately.current_state = '';
-  stately.current_substate = '';
-  stately.states = {};
-  stately.transitions = [];
+  stately.current_state = "";
 
-  stately.create = function(params) {
-    var state_funcs = {};
-    var substate_funcs = {};
-
-    if (params === undefined) return;
-
-    if (params.transitions) {
-      stately.transitions = _.clone(params.transitions);
-    }
-
-    if (params.globals) {
-      if (params.globals.all) {
-	_.each(params.globals.all, function (func, name) {
-	  if (typeof func === "function") {
-	    state_funcs[name] = func;
-	    substate_funcs[name] = func;
-	  }
-	});
-      }
-      if (params.globals.states) {
-	_.each(params.globals.states, function (func, name) {
-	  if (typeof func === "function") state_funcs[name] = func;
-	});
-	
-      }
-      if (params.globals.substates) {
-	_.each(params.globals.substates, function (func, name) {
-	  if (typeof func === "function") substate_funcs[name] = func;
-	});
-	
-      }
-    }
-
-    if (params.states && typeof params.states === "object")  {
-      _.each(params.states, function (state, name) {
-	if (name && typeof state === "object") {
-	  stately.states[name] = state;
-	  _.each(state_funcs, function (f,n) {
-	    if (!stately.states[name][n]) stately.states[name][n] = f;
-	  });
-	}
-      });
-    }
-
-    if (params.events) {
-      params.events.forEach(function (event) {
-	stately[event.name] = function () {
-	  console.log("Called " + event.name);
-	  if (current_state === event.from) {
-	    current_state = event.to;
-	    console.log("Transitioned from " + event.from + " to " + event.to);
-	  }
-	};
-      });
-    }
-    if (params.initialState) {
-      stately._transition(params.initialState);
-    }    
+  stately.create = function (create_params) {
+    if (create_params === undefined) return;
+    if (create_params.states && typeof create_params.states === "object")
+      stately.states = create_params.states;
+    if (create_params.initialState && typeof create_params.initialState === "string")
+      stately._transition(create_params.initialState);
+    if (create_params.transitions && _.isArray(create_params.transitions))
+      stately.transitions = create_params.transitions;
+    if (create_params.globals && _.isObject(create_params.globals))
+      stately.globals = create_params.globals;
   };
 
-  if (params !== undefined) { stately.create(params); }
+  if (params !== undefined && typeof params === "object")
+    stately.create(params);
 
-  stately.emit = function (func, params) {
-    if (params === undefined) params = [];
-    var cur_state = stately.getCurrentState();
-    var cur_substate = null;
-    if (!_.isEmpty(stately.current_substate)) {
-      cur_substate = stately.getCurrentSubstate();
-    }
-    if (cur_substate) {
-      if (cur_substate[func] && typeof cur_substate[func] === "function") {
-	cur_substate[func].apply(stately, Array.prototype.slice.call(params));
-      } else if (cur_substate.delegates && cur_state[func] && typeof cur_state[func] === "function") {
-	cur_state[func].apply(stately, Array.prototype.slice.call(params));
-      }
-    } else if (cur_state[func] && typeof cur_state[func] === "function") {
-      cur_state[func].apply(stately, Array.prototype.slice.call(params));
-    }
-  };
+  function getCurrentState() {
+    return _.result(stately.states, stately.current_state);
+  }
 
-  // params - parameters to be passed to the transitioned state's _onEnter function
-  stately._transition = function (to_state, params) {
-    var cur_state = stately.states[stately.current_state];
-    if (cur_state && cur_state._onExit && typeof cur_state._onExit === "function") cur_state._onExit()
+  function getCurrentStateName() {
+    return _.first(stately.current_state.split('.'));
+  }
+
+  function inSubstate() {
+    return !_.isEmpty(getCurrentSubstateName().replace(/ /g, ''));
+  }
+
+  function getCurrentSubstateName() {
+    if (stately.current_state.split('.').length < 2) // no substate
+      return '';
+    return _.last(stately.current_state.split('.'));
+  }
+  
+  function callOnEnter(state, onEnterParams) {
+    if (state === undefined) state = getCurrentState();
+    if (state._onEnter === undefined ||	typeof state._onEnter !== "function") return;
+    if (onEnterParams === undefined) onEnterParams = [];
+    return state._onEnter.apply(stately, Array.prototype.slice.call(onEnterParams));
+  }
+
+  function callOnExit(state, onExitParams) {
+    if (state === undefined) return;
+    if (state._onExit === undefined || typeof state._onExit !== "function") return;
+    if (onExitParams === undefined) onExitParams = [];
+    return state._onExit.apply(stately, Array.prototype.slice.call(onExitParams));
+  }
+
+  function getState(state) {
+    return _.result(stately.states, state);
+  }
+
+  function findTransition(from) {
+    return _.find(stately.transitions, {from: from});
+  }
+  
+  function transition(to_state, enter_params, exit_params, type) {
     if (to_state === undefined) {
-      var transitions = _.where(stately.transitions, {from: stately.current_state});
-      if (transitions.length > 1) {
-	_.each(transitions, function (transition) {
-	  if (transition.cond && !eval(transition.cond)) {
-	    console.log('test');
-	  }
-	});
-      }
-      to_state = transitions[0].to;   /// first one for now. Later on we will implement conditions and such, so there could be multiple results
-    }
-    if (typeof to_state === "string") stately.current_state = to_state;
-    stately.current_substate = '';
-    cur_state = stately.getCurrentState();
-    if (cur_state._onEnter && typeof cur_state._onEnter === "function") {
-	if (params === undefined) params = [];
-	cur_state._onEnter.apply(stately, Array.prototype.slice.call(params));
-    }
-  };
-
-  // params - parameters to be passed to the transitioned substate's _onEnter function
-  stately._transitionSubstate = function (to_substate, params) {
-    var cur_state = stately.getCurrentState();
-    if (cur_state.substates && cur_state.substates[to_substate] &&
-	typeof cur_state.substates[to_substate] === "object") {
-      stately.current_substate = to_substate;
-      var cur_substate = stately.getCurrentSubstate();
-      if (cur_substate._onEnter && typeof cur_substate._onEnter === "function") {
-	if (params === undefined) params = [];
-	cur_substate._onEnter.apply(stately, Array.prototype.slice.call(params));
+      var found;
+      if ((found = findTransition(getCurrentStateName()))) {
+	to_state = found.to;
+      } else {
+	console.log("ERROR! No state specified and no transition exists");
+	return;
       }
     }
-  };
-
-  stately._exitSubstate = function (params) {
-    var cur_substate = stately.getCurrentSubstate();
-    if (cur_substate) {
-      if (params === undefined) params = [];
-      if (cur_substate._onExit && typeof cur_substate._onExit === "function") {
-	cur_substate._onExit.apply(stately, Array.prototype.slice.call(params));
-      }
-      var cur_state = stately.getCurrentState();
-      if (cur_state._onReturn && typeof cur_state._onReturn === "function" ) {
-	cur_state._onReturn.apply(stately, [stately.current_substate]);
-      }
-      stately.current_substate = '';
+    if (typeof to_state !== "string") {
+      console.log("ERROR! state name must be a string!");
+      return;
     }
+    if (type === undefined) {
+      console.log("ERROR! No transition type specified");
+      return;
+    }
+    var old_state = getCurrentState();
+    if (type === "state") {
+      if (getState(to_state) === undefined) {
+	console.log("ERROR! No such state!");
+	return;
+      }
+      stately.current_state = to_state;
+      callOnExit(old_state, exit_params);
+    } else if (type === "substate") {
+      if (old_state[to_state] === undefined) {
+	console.log("ERROR! No such substate!");
+	return;
+      }
+      stately.current_state = stately.current_state + '.' + to_state;
+    }
+    callOnEnter(getCurrentState(), enter_params);
+  }
+
+  stately._emit = function (func, func_params) {
+    if (func === undefined) {
+      console.log("ERROR! No function supplied");
+      return;
+    }
+    if (func_params === undefined) func_params = [];
+    var cur_state = getCurrentState();
+    if (cur_state[func] === undefined) {
+      if (!inSubstate() && stately.globals.states[func]) {
+	return stately.globals.states[func].apply(getCurrentState(), Array.prototype.slice.call(func_params));
+      } else if (inSubstate() && stately.globals.substates[func]) {
+	return stately.globals.substates[func].apply(getCurrentState(), Array.prototype.slice.call(func_params));
+      } else if (stately.globals.all[func]) {
+	return stately.globals.all[func].apply(getCurrentState(), Array.prototype.slice.call(func_params));
+      }
+      return;
+    }
+    if (cur_state[func] !== undefined && typeof cur_state[func] !== "function") return;
+    return cur_state[func].apply(stately, Array.prototype.slice.call(func_params));
   };
 
-  stately.getCurrentState = function () {
-    return stately.states[stately.current_state];
+  stately._transition = function (to_state, enter_params, exit_params) {
+    transition(to_state, enter_params, exit_params, "state");
   };
 
-  stately.getCurrentSubstate = function () {
-    var cur_state = stately.getCurrentState();
-    if (!cur_state.substates) return null;
-    return cur_state.substates[stately.current_substate];
+  stately._transitionSubstate = function (to_state, enter_params, exit_params) {
+    transition(to_state, enter_params, exit_params, "substate");
   };
 }

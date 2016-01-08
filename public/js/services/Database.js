@@ -1,4 +1,6 @@
-app.factory('Database', ['$http', '$rootScope', function ($http, $rootScope) {
+angular.module('eldritch')
+  .factory('Database', Database);
+function Database($http, $rootScope) {
   'use strict';
 
   function getCollection(coll) {
@@ -12,4 +14,4 @@ app.factory('Database', ['$http', '$rootScope', function ($http, $rootScope) {
   return {
     getCollection: getCollection
   };
-}]);
+};

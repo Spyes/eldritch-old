@@ -1,12 +1,15 @@
-app.factory('mommy', ['util', function (util) {
+angular.module('eldritch')
+  .factory('mommy', mommy);
+function mommy() {
   'use strict';
 
-  function canMoveTo(player, src, dest) {
-    if (player === undefined || src === undefined || dest === undefined) return false;
-    var connection = util.findConnection(src, dest);
+  function canMoveTo(src, dest) {
+    if (src === undefined || dest === undefined) return false;
+    return true;
+//    return false;
   }
 
   return {
     canMoveTo: canMoveTo
   };
-}]);
+};

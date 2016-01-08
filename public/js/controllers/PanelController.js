@@ -1,4 +1,6 @@
-app.controller('PanelController', ['$scope', '$controller', function ($scope, $controller) {
+angular.module('eldritch')
+  .controller('PanelController', PanelController);
+function PanelController($scope, $controller) {
   'use strict';
 
   $controller('GameController', {$scope: $scope});
@@ -6,4 +8,4 @@ app.controller('PanelController', ['$scope', '$controller', function ($scope, $c
   $scope.init = function () {
     $scope.showPanel = true;
   };
-}]);
+};

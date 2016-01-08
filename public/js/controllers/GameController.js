@@ -1,72 +1,59 @@
-app.controller('GameController', ['$scope', '$routeParams', '$rootScope', 'Collections', 'mommy', function ($scope, $routeParams, $rootScope, CD, mommy) {
+angular.module('eldritch')
+  .controller('GameController', GameController);
+function GameController($routeParams, $rootScope, Collections, mommy, Map, util) {
   'use strict';
 
+  var vm = this;
+
   function moveInvestigator(investigator, location) {
-    var currLocation = CD.findByName('locations', investigator.current_location);
-    if (!canMoveTo(currLocation, location)) return;
-  }
-  
-  $scope.locationCoords = function (location) {
-    if (location === undefined) { return ""; }
-    var c = location.coords;
-    var type = location.type;
-    var r = 23;
-    if (type.toLowerCase().indexOf("major") > -1 ||
-        type.toLowerCase().indexOf("expedition") > -1) {
-      r = 80;
+    var currLocation = Collections.findByName('locations', investigator.current_location);
+    if (!mommy.canMoveTo(currLocation, location)) return;
+    var connections = util.findConnection(currLocation, location, 2);
+    if (connections.length > 0) {
+      investigator.current_location = location.name;
     }
-    // TODO : Maybe store this in DB?
-    location.coords.r = r;
-    return c.x + "," + c.y + "," + r;
-  };
-
-  $scope.getLocationInfoStyle = function (location) {
-    if (location === undefined) { return {}; }
-    var coords = location.coords;
-    var left = coords.x - coords.r;
-    var top = coords.y;
-    var style = {
-      "position": "absolute",
-      "background-color": "white",
-      "left": left + "px",
-      "top": top + "px"
-    };
-    return style;
-  };
-
-  $scope.clickLocation = function (location) {
-    $scope.fsm.emit('onClickLocation', [location]);
-  };
+  }
   
   function setupPlayer(player) {
     player.investigator.current_location = player.investigator.starting_location;
   }
+
+  vm.locationCoords = function (location) {
+    return Map.locationCoords(location);
+  };
+
+  vm.getLocationStyle = function (location) {
+    return Map.getLocationStyle(location);
+  };
+
+  vm.clickLocation = function (location) {
+    vm.fsm._emit('onClickLocation', [location]);
+  };
   
-  $scope.init = function () {
-    $scope.GODMODE = false;
-    $scope.player = {
-      investigator: CD.findByName($rootScope.investigators, $routeParams.investigator),
+  vm.init = function () {
+    vm.GODMODE = false;
+    vm.player = {
+      investigator: Collections.findByName('investigators', $routeParams.investigator),
     };
-    $scope.game = {
-      ancient_one: CD.findByName($rootScope.ancient_ones, $routeParams.ancient_one),
-      players: [$scope.player]
+    vm.game = {
+      ancient_one: Collections.findByName('ancient_ones', $routeParams.ancient_one),
+      players: [vm.player]
     };
-    $scope.fsm = new Stately();
+    vm.fsm = new Stately();
     var states = {
       action: {
         canPlayerDoAction: function (player, action) {
-          console.log('test');
-        },
+	  return true;
+	},
 	onClickLocation: function (location) {
-	  if (!this.emit('canPlayerDoAction', [$scope.player, 'move'])) return;
-	  moveInvestigator($scope.player.investigator, location);
+	  moveInvestigator(vm.player.investigator, location);
 	}
       }
     };
-    $scope.fsm.create({
+    vm.fsm.create({
       initialState: 'action',
       states: states
     });
-    setupPlayer($scope.player);
+    setupPlayer(vm.player);
   };
-}]);
+};

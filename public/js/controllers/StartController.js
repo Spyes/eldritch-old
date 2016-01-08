@@ -1,21 +1,27 @@
-app.controller('StartController', ['$scope', '$rootScope', '$location', 'Database', function ($scope, $rootScope, $location, Database) {
+angular
+  .module('eldritch')
+  .controller('StartController', StartController);
+//'$rootScope', '$location', 'Database'
+function StartController($rootScope, $location, Database) {
   'use strict';
 
-  $scope.startGame = function () {
-    if (!$scope.selected_investigator || !$scope.selected_ancient_one) return;
-    $location.path('/board').search({investigator: $scope.selected_investigator,
-                                    ancient_one: $scope.selected_ancient_one});
+  var vm = this;
+
+  vm.startGame = function () {
+    if (!vm.selected_investigator || !vm.selected_ancient_one) return;
+    $location.path('/board').search({investigator: vm.selected_investigator,
+                                     ancient_one: vm.selected_ancient_one});
   };
 
-  $scope.clickInvestigator = function (investigator) {
-    $scope.selected_investigator = investigator.name;
+  vm.clickInvestigator = function (investigator) {
+    vm.selected_investigator = investigator.name;
   };
-  $scope.clickAncientOne = function (ancient_one) {
-    $scope.selected_ancient_one = ancient_one.name;
+  vm.clickAncientOne = function (ancient_one) {
+    vm.selected_ancient_one = ancient_one.name;
   };
 
-  $scope.init = function () {
-    $scope.selected_investigator = undefined;
-    $scope.selected_ancient_one = undefined;
+  vm.init = function () {
+    vm.selected_investigator = undefined;
+    vm.selected_ancient_one = undefined;
   };
-}]);
+};
