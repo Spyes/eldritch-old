@@ -1,4 +1,4 @@
 <div ng-init='game.init()'>
   <div ng-include="'views/board.html'"></div>
-  <div ng-include="'views/panel.html'" class="right-panel" ng-hide='true'></div>
+  <div ng-include="'views/panel.html'" ng-controller="PanelController as panel" class="right-panel"></div>
 </div>

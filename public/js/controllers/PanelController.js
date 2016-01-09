@@ -1,11 +1,15 @@
-angular.module('eldritch')
+angular
+  .module('eldritch')
   .controller('PanelController', PanelController);
-function PanelController($scope, $controller) {
+
+function PanelController($controller) {
   'use strict';
 
-  $controller('GameController', {$scope: $scope});
+  var vm = this;
 
-  $scope.init = function () {
-    $scope.showPanel = true;
+  $controller('GameController', {$scope: vm});
+
+  vm.init = function () {
+    vm.showPanel = true;
   };
 };

@@ -1,4 +1,4 @@
-<div ng-controller="PanelController" ng-init="init()" ng-show="showPanel">
+<div ng-init="panel.init()" ng-show="panel.showPanel">
   Investigator: <span ng-click="GODMODE = !GODMODE" class="clickable">God ({{GODMODE}})</span>
   <input type="text" ng-model="player.investigator.name" disabled />
   <br/>

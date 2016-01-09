@@ -1,7 +1,7 @@
 angular
   .module('eldritch')
   .controller('StartController', StartController);
-//'$rootScope', '$location', 'Database'
+
 function StartController($rootScope, $location, Database) {
   'use strict';
 

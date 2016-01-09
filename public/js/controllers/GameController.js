@@ -1,6 +1,8 @@
-angular.module('eldritch')
+angular
+  .module('eldritch')
   .controller('GameController', GameController);
-function GameController($routeParams, $rootScope, Collections, mommy, Map, util) {
+
+function GameController($scope, $routeParams, $rootScope, Collections, mommy, Map, util) {
   'use strict';
 
   var vm = this;
@@ -31,9 +33,9 @@ function GameController($routeParams, $rootScope, Collections, mommy, Map, util)
   };
   
   vm.init = function () {
-    vm.GODMODE = false;
-    vm.player = {
-      investigator: Collections.findByName('investigators', $routeParams.investigator),
+    $scope.GODMODE = vm.GODMODE = false;
+    $scope.player = vm.player = {
+      investigator: Collections.findByName('investigators', $routeParams.investigator)
     };
     vm.game = {
       ancient_one: Collections.findByName('ancient_ones', $routeParams.ancient_one),
