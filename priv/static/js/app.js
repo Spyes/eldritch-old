@@ -1,0 +1,2 @@
+console.log('test');
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImVsZHJpdGNoLmpzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLFFBQVEsR0FBUixDQUFZLE1BQVoiLCJmaWxlIjoiZWxkcml0Y2guanMiLCJzb3VyY2VSb290IjoiL3dlYi9zdGF0aWMvanMvIn0=
