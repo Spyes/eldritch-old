@@ -27,6 +27,11 @@
       "test": "test"
     },
     "configFile": "priv/static/config.js",
+    "dependencies": {
+      "angular": "github:angular/bower-angular@^1.5.0",
+      "angular-ui-router": "github:angular-ui/ui-router@^0.2.18",
+      "oclazyload": "npm:oclazyload@^1.0.9"
+    },
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",
       "babel-runtime": "npm:babel-runtime@^5.8.24",

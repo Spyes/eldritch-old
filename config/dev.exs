@@ -35,5 +35,5 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :eldritch, Eldritch.Repo,
   adapter: Mongo.Ecto,
-  database: "eldritch_dev",
+  database: "eldritch",
   pool_size: 10

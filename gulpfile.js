@@ -9,7 +9,10 @@ var cssSrc = 'web/static/css/*.scss';
 var cssDest = 'priv/static/css';
 
 var jsSrc = 'web/static/js/**/*.js*';  
-var jsDest = 'priv/static/js'
+var jsDest = 'priv/static/js';
+
+var viewsSrc = 'web/static/views/**/*.html';
+var viewsDest = 'priv/static/views';
 
 function reportChange(event){  
   console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
@@ -32,7 +35,12 @@ gulp.task('build-js', function() {
     .pipe(gulp.dest(jsDest));
 });
 
-gulp.task('build', ['build-js', 'build-sass']);
+gulp.task('build-html', function () {
+  gulp.src(viewsSrc)
+    .pipe(gulp.dest(viewsDest));
+});
+
+gulp.task('build', ['build-html', 'build-js', 'build-sass']);
 
 gulp.task('watch', ['build'], function() {  
   gulp.watch([jsSrc, cssSrc], ['build']).on('change', reportChange);

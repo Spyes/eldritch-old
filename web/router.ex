@@ -17,6 +17,7 @@ defmodule Eldritch.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+		get "/api/get_investigators", InvestigatorController, :index
   end
 
   # Other scopes may use custom stacks.

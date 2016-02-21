@@ -2,7 +2,7 @@ defmodule Eldritch.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "rooms:*", Eldritch.RoomChannel
+  channel "rooms:*", Eldritch.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

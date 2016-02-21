@@ -1,0 +1,7 @@
+<div ng-repeat="investigator in vm.investigators">
+  <p>
+    <span ng-class="{selected: vm.selected_investigator == investigator.name}">
+      {{investigator.name}}
+    </span>
+  </p>
+</div>
