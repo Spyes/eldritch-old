@@ -1,0 +1,44 @@
+<div ng-if="!vm.showLobby">
+  <form ng-submit="vm.enterLobby()">
+    <input type="text" ng-model="vm.username" class="form-control" />
+    <button type="submit" class="btn btn-primary">Submit</a>
+  </form>
+</div>
+<div ng-if="vm.showLobby" class="lobby">
+  <div class="title">
+    <label>{{vm.currentRoom.name}}</label>
+  </div>
+  <div class="player-list">
+    <div ng-repeat="player in vm.currentRoom.players track by $index" class="player">
+      {{player}}
+    </div>
+  </div>
+  <div class="chat-window">
+    <div class="chat-message" ng-repeat="message in vm.chatMessages">
+      [{{message.sender}}]: {{message.msg}}
+    </div>
+  </div>
+  <div class="chat-input">
+    <form ng-submit="vm.sendChatMessage()">
+      <input type="text" class="form-control" ng-model="vm.chat_message" />
+    </form>
+  </div>
+  <div class="rooms-list">
+    <div class="action-buttons" ng-if="!vm.showNewRoomForm">
+      <a href="" class="btn btn-primary" ng-click="vm.openNewRoomForm()">Create Room</a>
+      <hr/>
+    </div>
+    <div ng-if="vm.showNewRoomForm">
+      Name: <input type="text" ng-model="vm.newRoom.name" class="form-control" placeholder="Room Name" />
+      Password: <input type="text" ng-model="vm.newRoom.password" class="form-control" placeholder="Password (optional)" />
+      Max players: <input type="number" ng-model="vm.newRoom.max_players" class="form-control" />
+      <a class="btn btn-success" ng-click="vm.createNewRoom()">Create</a>
+      <a class="btn btn-danger" ng-click="vm.closeNewRoomForm()">Close</a>
+    </div>
+    <div ng-if="!vm.showNewRoomForm">
+      <div ng-repeat="room in vm.rooms track by $index">
+	{{room}}
+      </div>
+    </div>
+  </div>
+</div>

@@ -13,6 +13,7 @@ defmodule Eldritch do
       supervisor(Eldritch.Repo, []),
       # Here you could define other workers and supervisors as children
       # worker(Eldritch.Worker, [arg1, arg2, arg3]),
+			worker(Eldritch.Server, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

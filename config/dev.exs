@@ -17,8 +17,9 @@ config :eldritch, Eldritch.Endpoint,
 config :eldritch, Eldritch.Endpoint,
   live_reload: [
     patterns: [
-      ~r{priv/static/.*(js|css|png|jpeg|jpg|gif|svg)$},
+      ~r{priv/static/.*(html|js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
+			~r{web/static/views/*.(html)$},
       ~r{web/views/.*(ex)$},
       ~r{web/templates/.*(eex)$}
     ]

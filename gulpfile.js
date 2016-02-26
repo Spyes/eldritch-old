@@ -5,7 +5,7 @@ var concat = require('gulp-concat');
 var sourcemaps = require('gulp-sourcemaps');  
 var plumber = require('gulp-plumber');
 
-var cssSrc = 'web/static/css/*.scss';  
+var cssSrc = 'web/static/css/**/*.scss';
 var cssDest = 'priv/static/css';
 
 var jsSrc = 'web/static/js/**/*.js*';  
@@ -18,7 +18,7 @@ function reportChange(event){
   console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
 }
 
-gulp.task('build-sass', function() {  
+gulp.task('build-sass', function() {
   gulp.src(cssSrc)
       .pipe(sass())
       .pipe(concat('app.css'))

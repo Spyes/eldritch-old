@@ -1,0 +1,16 @@
+<div class="game-start" ng-init="vm.init()">
+  <p>
+    <input class='form-control' ng-model='vm.username' placeholder='Username'/>
+  </p>
+  <p>
+    <ul>
+      <li ng-repeat="investigator in investigators" ng-click="vm.clickInvestigator(investigator)"
+	  ng-class="{active: investigator.name === vm.selected_investigator.name}">
+	{{investigator.name}}
+      </li>
+    </ul>
+  </p>
+  <p>
+    <a href='' ng-click="vm.accept()" class="btn btn-primary">Start Game</a>
+  </p>
+</div>

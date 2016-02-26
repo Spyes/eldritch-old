@@ -1,7 +1,5 @@
 defmodule Eldritch.Investigator do
 	use Eldritch.Web, :model
-	use Ecto.Model
-	use Eldritch.Schema
 
 	schema "investigators" do
 		field :name, :string
