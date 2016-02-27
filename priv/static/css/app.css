@@ -7061,6 +7061,8 @@ button.close {
   padding: 10px; }
   .lobby .rooms-list .room {
     cursor: pointer; }
+  .lobby .rooms-list .current {
+    color: #398493; }
   .lobby .rooms-list .action-buttons {
     position: absolute;
     width: 100%;

@@ -10,7 +10,7 @@
   </div>
   <div class="player-list">
     <div ng-repeat="player in vm.currentRoom.players track by $index" class="player">
-      {{player}}
+      {{player}} <span ng-if="vm.currentRoom.admin === player">[admin]</span>
     </div>
   </div>
   <div class="pregame-options" ng-if="vm.currentRoom.name !== 'lobby'">
@@ -22,7 +22,7 @@
        ng-class="{'in-lobby': vm.currentRoom.name === 'lobby',
 		 'in-game-room': vm.currentRoom.name !== 'lobby'}">
     <div class="chat-message" ng-repeat="message in vm.chatMessages">
-      <span class="sender" ng-if="messageg.sender">[{{message.sender}}]:</span>
+      <span class="sender" ng-if="message.sender">[{{message.sender}}]:</span>
       <span class="message">{{message.msg}}</span>
     </div>
   </div>
@@ -41,7 +41,7 @@
     </div>
     <div ng-if="!vm.showNewRoomForm">
       <div ng-repeat="room in vm.rooms track by $index" class="room"
-           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room}">
+           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room, current: vm.currentRoom.name === room}">
 	{{room}}
       </div>
     </div>

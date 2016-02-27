@@ -11,6 +11,7 @@ function LobbyController($rootScope, $controller, CommonData) {
   vm.chatMessages = [];
   vm.showNewRoomForm = false;
   vm.currentRoom = {name: "",
+                    admin: "",
 		    players: []};
   vm.newRoom = {name: "",
 		password: undefined,
@@ -18,7 +19,8 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function after_join(resp) {
     vm.currentRoom.name = resp.room_id;
-    vm.currentRoom.players = resp.players;
+    vm.currentRoom.players = resp.players.players;
+    vm.currentRoom.admin = resp.players.admin;
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
     vm.chatMessages.push({sender: null,
@@ -91,6 +93,7 @@ function LobbyController($rootScope, $controller, CommonData) {
       });
   };
   vm.clickRoom = function (index) {
+    if (vm.rooms[index] === vm.currentRoom.name) return;
     vm.selectedRoom = vm.rooms[index];
   };
   vm.joinSelectedRoom = function () {

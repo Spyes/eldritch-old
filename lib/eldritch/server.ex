@@ -3,7 +3,7 @@ defmodule Eldritch.Server do
 
 	### External API
 	def start_link do
-		GenServer.start_link __MODULE__, %{lobby: []}, name: __MODULE__
+		GenServer.start_link __MODULE__, %{lobby: %{players: [], admin: ""}}, name: __MODULE__
 	end
 
 	def player_joined(where, username) when is_atom(where) do
@@ -28,25 +28,24 @@ defmodule Eldritch.Server do
 	
 	### GenServer implementation
 	def handle_cast({:player_joined, where, username}, rooms) do
-		case rooms[where] do
-			nil -> {:noreply, Map.put(rooms, where, [username])}
-			_   -> {:noreply, update_in(rooms[where], &(&1 ++ [username]))} 
-		end
+		if rooms[where] do
+      {:noreply, Map.put(rooms, where, Map.put(rooms[where], :players, rooms[where][:players] ++ [username]))}
+    end
 	end
   def handle_cast({:player_left, where, username}, rooms) do
-    {:noreply, update_in(rooms[where], &(&1 -- [username]))}
+    {:noreply, Map.put(rooms, where, Map.put(rooms[where], :players, rooms[where][:players] -- [username]))}
   end
 
 	def handle_call({:create_room, room_id}, _from, rooms) do
     case rooms[room_id] do
-		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> [] end)}
+		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> %{players: [], admin: ""} end)}
 		  _   -> {:reply, {:error, %{msg: "Room name already taken!"}}, rooms} 
     end
 	end
 	def handle_call({:get_all_players, where}, _from, rooms) do
 		{:reply, rooms[where], rooms}
 	end
-	def handle_call(:get_all_room_names, from, rooms) do
+	def handle_call(:get_all_room_names, _from, rooms) do
 		{:reply, Map.keys(rooms), rooms}
 	end
 end

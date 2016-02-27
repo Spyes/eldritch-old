@@ -8,7 +8,7 @@ defmodule Eldritch.RoomChannel do
 		players = String.to_atom(room_id) |> Server.get_all_players
 		send(self, :after_join)
     socket = assign(socket, :username, params["username"])
-		{:ok, %{players: players, room_id: room_id}, assign(socket, :room, String.to_atom(room_id))}
+		{:ok, %{players: players[:players], admin: players[:admin], room_id: room_id}, assign(socket, :room, String.to_atom(room_id))}
 	end
   def terminate(_params, socket) do
     socket.assigns[:room] |> Server.player_left(socket.assigns[:username])
