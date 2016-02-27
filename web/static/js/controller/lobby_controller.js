@@ -15,13 +15,42 @@ function LobbyController($rootScope) {
 		password: undefined,
 		max_players: 6};
 
-  vm.registerSocketEvents = function (channel) {
-    channel.on("player:entered_room", function (payload) {
+  function after_join(resp) {
+    vm.currentRoom.name = resp.room_id;
+    vm.currentRoom.players = resp.players;
+    registerSocketEvents($rootScope.channel);
+    vm.showNewRoomForm = false;
+    $rootScope.$apply();
+    console.log("Joined " + vm.newRoom.name + " successfully", resp);
+  };
+
+  function change_channel(room = vm.selectedRoom) {
+    $rootScope.channel.leave();
+    $rootScope.channel =
+      $rootScope.socket.channel("rooms:" + room,
+                                {username: vm.username});
+    $rootScope.channel.join()
+      .receive("ok", resp => {
+        after_join(resp);
+      })
+      .receive("error", resp => { console.log("Unable to join", resp) });
+  }
+
+  function registerSocketEvents(channel) {
+    channel.on("player:entered_room", payload => {
       vm.currentRoom.players = payload.players;
       $rootScope.$apply();
     });
-    channel.on("player:sent_message", function (payload) {
+    channel.on("players_in_room", payload => {
+      vm.currentRoom.players = payload.players;
+      $rootScope.$apply();
+    });
+    channel.on("player:sent_message", payload => {
       vm.chatMessages.push({sender: payload.sender, msg: payload.msg});
+      $rootScope.$apply();
+    });
+    channel.on("room_names", payload => {
+      vm.rooms = payload.rooms;
       $rootScope.$apply();
     });
   };
@@ -29,46 +58,39 @@ function LobbyController($rootScope) {
   vm.sendChatMessage = function () {
     $rootScope.channel.push("player:sent_message", {msg: vm.chat_message});
     vm.chat_message = "";
-  };
-  
+  };  
+
   vm.openNewRoomForm = function () {
     vm.showNewRoomForm = true;
   };
+
   vm.closeNewRoomForm = function () {
     vm.showNewRoomForm = false;
   };
+
   vm.createNewRoom = function () {
     $rootScope.channel.push("create_room", {room: vm.newRoom})
-      .receive("ok", resp => {})
-      .receive("error", resp => {return;});
-    $rootScope.channel.on("new_room_created", resp => {
-      $rootScope.channel.leave();
-      $rootScope.channel = $rootScope.socket.channel("rooms:" + vm.newRoom.name, {username: vm.username});
-      $rootScope.channel.join()
-	.receive("ok", resp => {
-	  console.log(resp);
-	  vm.currentRoom.name = vm.newRoom.name;
-	  vm.currentRoom.players = resp.players;
-	  vm.registerSocketEvents($rootScope.channel);
-	  $rootScope.$apply();
-	  console.log("Joined " + vm.newRoom.name + " successfully", resp);
-	})
-	.receive("error", resp => { console.log("Unable to join", resp) });
-    });
+      .receive("ok", resp => {
+        change_channel(vm.newRoom.name);
+      });
   };
-  
+  vm.clickRoom = function (index) {
+    vm.selectedRoom = vm.rooms[index];
+  };
+  vm.joinSelectedRoom = function () {
+    if (!vm.selectedRoom) return;
+    change_channel();
+  };
+
   vm.enterLobby = function () {
     if (!vm.username) return;
     $rootScope.channel = $rootScope.socket.channel("rooms:lobby", {username: vm.username});
     $rootScope.channel.join()
       .receive("ok", resp => {
-	vm.currentRoom.name = "lobby";
-	vm.currentRoom.players = resp.players;
+        after_join(resp);
+        vm.rooms = resp.rooms;
 	vm.showLobby = true;
-	vm.registerSocketEvents($rootScope.channel);
-	$rootScope.$apply();
-	console.log("Joined successfully", resp)
       })
-      .receive("error", resp => { console.log("Unable to join", resp) });
-  }
+      .receive("error", resp => { console.log("Unable to join", resp); });
+  };
 }

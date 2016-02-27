@@ -6,15 +6,19 @@ defmodule Eldritch.Server do
 		GenServer.start_link __MODULE__, %{lobby: []}, name: __MODULE__
 	end
 
-	def player_joined(where, username) do
+	def player_joined(where, username) when is_atom(where) do
 		GenServer.cast __MODULE__, {:player_joined, where, username}
 	end
 
-	def get_all_players(where) do
+  def player_left(where, username) when is_atom(where) do
+    GenServer.cast __MODULE__, {:player_left, where, username}
+  end
+
+	def get_all_players(where) when is_atom(where) do
 		GenServer.call __MODULE__, {:get_all_players, where}
 	end
 
-	def create_room(room_id) do
+  def create_room(room_id) when is_atom(room_id) do
 		GenServer.cast __MODULE__, {:create_room, room_id}
 	end
 
@@ -32,6 +36,9 @@ defmodule Eldritch.Server do
 			_   -> {:noreply, update_in(rooms[where], &(&1 ++ [username]))} 
 		end
 	end
+  def handle_cast({:player_left, where, username}, rooms) do
+    {:noreply, update_in(rooms[where], &(&1 -- [username]))}
+  end
 
 	def handle_call({:get_all_players, where}, _from, rooms) do
 		{:reply, rooms[where], rooms}

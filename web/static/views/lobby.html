@@ -24,10 +24,6 @@
     </form>
   </div>
   <div class="rooms-list">
-    <div class="action-buttons" ng-if="!vm.showNewRoomForm">
-      <a href="" class="btn btn-primary" ng-click="vm.openNewRoomForm()">Create Room</a>
-      <hr/>
-    </div>
     <div ng-if="vm.showNewRoomForm">
       Name: <input type="text" ng-model="vm.newRoom.name" class="form-control" placeholder="Room Name" />
       Password: <input type="text" ng-model="vm.newRoom.password" class="form-control" placeholder="Password (optional)" />
@@ -36,9 +32,15 @@
       <a class="btn btn-danger" ng-click="vm.closeNewRoomForm()">Close</a>
     </div>
     <div ng-if="!vm.showNewRoomForm">
-      <div ng-repeat="room in vm.rooms track by $index">
+      <div ng-repeat="room in vm.rooms track by $index" class="room"
+           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room}">
 	{{room}}
       </div>
+    </div>
+    <div class="action-buttons" ng-if="!vm.showNewRoomForm">
+      <hr/>
+      <a href="" class="btn btn-primary" ng-click="vm.openNewRoomForm()">Create Room</a>
+      <a href="" class="btn btn-success" ng-click="vm.joinSelectedRoom()">Join Room</a>
     </div>
   </div>
 </div>

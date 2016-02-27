@@ -3,29 +3,30 @@ defmodule Eldritch.RoomChannel do
 	alias Eldritch.Server
 	require IEx
 
-	def join("rooms:lobby", params, socket) do
-		Server.player_joined(:lobby, params["username"])
-		players = Server.get_all_players(:lobby)
-		send(self, :after_join)
-		{:ok, %{players: players}, assign(socket, :username, params["username"])}
-	end
 	def join("rooms:" <> room_id, params, socket) do
-		Server.player_joined(room_id, params["username"])
-		players = Server.get_all_players(room_id)
+		String.to_atom(room_id) |> Server.player_joined(params["username"])
+		players = String.to_atom(room_id) |> Server.get_all_players
 		send(self, :after_join)
-		{:ok, %{players: players}, assign(socket, :room, room_id)}
+    socket = assign(socket, :username, params["username"])
+		{:ok, %{players: players, room_id: room_id}, assign(socket, :room, String.to_atom(room_id))}
 	end
+  def terminate(_params, socket) do
+    socket.assigns[:room] |> Server.player_left(socket.assigns[:username])
+    players = socket.assigns[:room] |> Server.get_all_players
+    broadcast! socket, "players_in_room", %{players: players}
+    {:ok, socket}
+  end
 	
 	def handle_info(:after_join, socket) do
-		players = Server.get_all_players(:lobby)
-		broadcast! socket, "player:entered_lobby", %{players: players}
+		players = Server.get_all_players(socket.assigns[:room])
+		broadcast! socket, "player:entered_room", %{players: players}
 		{:noreply, socket}
 	end
 
 	def handle_in("create_room", params, socket) do
-		Server.create_room(params["room"]["name"])
+		String.to_atom(params["room"]["name"]) |> Server.create_room
 		rooms = Server.get_all_room_names
-		broadcast socket, "room_names", %{rooms: rooms}
+		broadcast! socket, "room_names", %{rooms: rooms}
 		{:reply, :ok, socket}
 	end
 
@@ -40,6 +41,7 @@ defmodule Eldritch.RoomChannel do
 			"investigators" -> collection = Eldritch.Investigator
 			"locations" -> collection = Eldritch.Location
 			"ancient_ones" -> collection = Eldritch.AncientOne
+        _ -> {:noreply, socket}
 		end
 		data = Eldritch.Repo.all(collection)
 		|> Enum.scan([], fn entity,_acc ->
@@ -48,7 +50,7 @@ defmodule Eldritch.RoomChannel do
 				fn (key,_acc) ->
 					{key, Map.get(entity, key)}
 				end)
-			|> Enum.into %{}
+			|> Enum.into(%{})
 		end)
 		broadcast! socket, "sent_collection", %{coll: coll, data: data}
 		{:noreply, socket}
