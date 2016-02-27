@@ -13,7 +13,6 @@
 	position: absolute;
 	border: 1px solid black;
 	bottom: 40px;
-	top: 20px;
 	left: 250px;
 	right: 250px;
 	overflow-y: auto;
@@ -24,6 +23,14 @@
 	border: 1px solid black;
 	bottom: 0;
 	height: 40px;
+	left: 250px;
+	right: 250px;
+    }
+    .pregame-options {
+	position: absolute;
+	top: 20px;
+	height: 50%;
+	border: 1px solid black;
 	left: 250px;
 	right: 250px;
     }

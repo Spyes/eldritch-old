@@ -2,8 +2,9 @@ angular
   .module('Eldritch')
   .controller('LobbyController', LobbyController);
 
-function LobbyController($rootScope) {
+function LobbyController($rootScope, $controller, CommonData) {
   var vm = this;
+  $controller('GameController', {$scope: vm});
   vm.showLobby = false;
   vm.username = undefined;
   vm.chat_message = "";
@@ -20,8 +21,17 @@ function LobbyController($rootScope) {
     vm.currentRoom.players = resp.players;
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
-    vm.chatMessages.push({sender: '', msg: `--Joined room ${resp.room_id}--`});
+    vm.chatMessages.push({sender: null,
+			  msg: `--Joined room ${resp.room_id}--`});
     $rootScope.$apply();
+    if (vm.currentRoom.name !== "lobby") {
+      CommonData.getCollections(["investigators", "ancient_ones"],
+			       $rootScope.channel,
+			       payload => {
+				 $rootScope[payload.collection] = payload.data;
+				 $rootScope.$apply();
+			       });
+    }
     console.log("Joined " + vm.newRoom.name + " successfully", resp);
   };
 
@@ -50,7 +60,7 @@ function LobbyController($rootScope) {
       vm.chatMessages.push({sender: payload.sender, msg: payload.msg});
       $rootScope.$apply();
     });
-    channel.on("room_names", payload => {
+    channel.on("rooms:names", payload => {
       vm.rooms = payload.rooms;
       $rootScope.$apply();
     });
@@ -85,7 +95,8 @@ function LobbyController($rootScope) {
   };
   vm.joinSelectedRoom = function () {
     if (!vm.selectedRoom) return;
-    change_channel();
+    if (vm.selectedRoom === "lobby") vm.enterLobby();
+    else change_channel();
   };
 
   vm.enterLobby = function () {
@@ -94,9 +105,9 @@ function LobbyController($rootScope) {
     $rootScope.channel.join()
       .receive("ok", resp => {
         after_join(resp);
-        vm.rooms = resp.rooms;
 	vm.showLobby = true;
       })
       .receive("error", resp => { console.log("Unable to join", resp); });
+    $rootScope.channel.push("rooms:all", {});
   };
 }

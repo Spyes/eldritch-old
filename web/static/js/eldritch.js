@@ -24,6 +24,6 @@ angular
       });
   })
   .run(function ($rootScope) {
-    $rootScope.socket = new Socket("/socket", {params: {token: window.userToken}})
-    $rootScope.socket.connect()    
+    $rootScope.socket = new Socket("/socket", {params: {token: window.userToken}});
+    $rootScope.socket.connect();
   });

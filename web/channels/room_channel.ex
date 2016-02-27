@@ -23,12 +23,17 @@ defmodule Eldritch.RoomChannel do
 		{:noreply, socket}
 	end
 
+	def handle_in("rooms:all", params, socket) do
+		rooms = Server.get_all_room_names
+		broadcast! socket, "rooms:names", %{rooms: rooms}
+		{:noreply, socket}
+	end
 	def handle_in("create_room", params, socket) do
 		status = String.to_atom(params["room"]["name"]) |> Server.create_room
     case status do
       {:error, msg} -> {:reply, {:error, %{error: msg}}, socket}
       :ok -> rooms = Server.get_all_room_names
-		    broadcast! socket, "room_names", %{status: status, rooms: rooms}
+		    broadcast! socket, "rooms:names", %{status: status, rooms: rooms}
 		    {:reply, :ok, socket}
     end
 	end
@@ -55,7 +60,7 @@ defmodule Eldritch.RoomChannel do
 				end)
 			|> Enum.into(%{})
 		end)
-		broadcast! socket, "sent_collection", %{coll: coll, data: data}
+		broadcast! socket, "sent_collection", %{collection: coll, data: data}
 		{:noreply, socket}
 	end
 

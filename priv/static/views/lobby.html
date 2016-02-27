@@ -13,9 +13,17 @@
       {{player}}
     </div>
   </div>
-  <div class="chat-window">
+  <div class="pregame-options" ng-if="vm.currentRoom.name !== 'lobby'">
+    <div ng-repeat="investigator in investigators">
+      {{investigator.name}}
+    </div>
+  </div>
+  <div class="chat-window"
+       ng-class="{'in-lobby': vm.currentRoom.name === 'lobby',
+		 'in-game-room': vm.currentRoom.name !== 'lobby'}">
     <div class="chat-message" ng-repeat="message in vm.chatMessages">
-      [{{message.sender}}]: {{message.msg}}
+      <span class="sender" ng-if="messageg.sender">[{{message.sender}}]:</span>
+      <span class="message">{{message.msg}}</span>
     </div>
   </div>
   <div class="chat-input">
