@@ -20,6 +20,7 @@ function LobbyController($rootScope) {
     vm.currentRoom.players = resp.players;
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
+    vm.chatMessages.push({sender: '', msg: `--Joined room ${resp.room_id}--`});
     $rootScope.$apply();
     console.log("Joined " + vm.newRoom.name + " successfully", resp);
   };
@@ -69,9 +70,14 @@ function LobbyController($rootScope) {
   };
 
   vm.createNewRoom = function () {
+    if (!vm.newRoom.name) return;
     $rootScope.channel.push("create_room", {room: vm.newRoom})
       .receive("ok", resp => {
         change_channel(vm.newRoom.name);
+        vm.newRoom = {name: "", password: undefined, max_players: 6};
+      })
+      .receive("error", resp => {
+        alert(resp.error.msg);
       });
   };
   vm.clickRoom = function (index) {

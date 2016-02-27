@@ -7021,7 +7021,8 @@ button.close {
   position: absolute;
   border: 1px solid black;
   height: 100%;
-  width: 250px; }
+  width: 250px;
+  padding: 10px; }
   .lobby .player-list .player {
     cursor: pointer; }
 
@@ -7049,7 +7050,8 @@ button.close {
   top: 0;
   bottom: 0;
   width: 250px;
-  border: 1px solid black; }
+  border: 1px solid black;
+  padding: 10px; }
   .lobby .rooms-list .room {
     cursor: pointer; }
   .lobby .rooms-list .action-buttons {

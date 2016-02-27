@@ -19,7 +19,7 @@ defmodule Eldritch.Server do
 	end
 
   def create_room(room_id) when is_atom(room_id) do
-		GenServer.cast __MODULE__, {:create_room, room_id}
+		GenServer.call __MODULE__, {:create_room, room_id}
 	end
 
 	def get_all_room_names do
@@ -27,9 +27,6 @@ defmodule Eldritch.Server do
 	end
 	
 	### GenServer implementation
-	def handle_cast({:create_room, room_id}, rooms) do
-		{:noreply, update_in(rooms[room_id], fn _ -> [] end)} 
-	end
 	def handle_cast({:player_joined, where, username}, rooms) do
 		case rooms[where] do
 			nil -> {:noreply, Map.put(rooms, where, [username])}
@@ -40,6 +37,12 @@ defmodule Eldritch.Server do
     {:noreply, update_in(rooms[where], &(&1 -- [username]))}
   end
 
+	def handle_call({:create_room, room_id}, _from, rooms) do
+    case rooms[room_id] do
+		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> [] end)}
+		  _   -> {:reply, {:error, %{msg: "Room name already taken!"}}, rooms} 
+    end
+	end
 	def handle_call({:get_all_players, where}, _from, rooms) do
 		{:reply, rooms[where], rooms}
 	end
