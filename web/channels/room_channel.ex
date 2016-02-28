@@ -13,23 +13,23 @@ defmodule Eldritch.RoomChannel do
   def terminate(_params, socket) do
     socket.assigns[:room] |> Server.player_left(socket.assigns[:username])
     players = socket.assigns[:room] |> Server.get_all_players
-    broadcast! socket, "players_in_room", %{players: players}
+    broadcast! socket, "players_in_room", %{players: players[:players], admin: players[:admin]}
     {:ok, socket}
   end
 	
 	def handle_info(:after_join, socket) do
 		players = Server.get_all_players(socket.assigns[:room])
-		broadcast! socket, "player:entered_room", %{players: players}
+		broadcast! socket, "player:entered_room", %{players: players[:players], admin: players[:admin]}
 		{:noreply, socket}
 	end
 
-	def handle_in("rooms:all", params, socket) do
+	def handle_in("rooms:all", _params, socket) do
 		rooms = Server.get_all_room_names
 		broadcast! socket, "rooms:names", %{rooms: rooms}
 		{:noreply, socket}
 	end
 	def handle_in("create_room", params, socket) do
-		status = String.to_atom(params["room"]["name"]) |> Server.create_room
+		status = String.to_atom(params["room"]["name"]) |> Server.create_room(socket.assigns[:username])
     case status do
       {:error, msg} -> {:reply, {:error, %{error: msg}}, socket}
       :ok -> rooms = Server.get_all_room_names

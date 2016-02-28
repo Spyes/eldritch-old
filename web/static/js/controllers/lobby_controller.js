@@ -19,12 +19,13 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function after_join(resp) {
     vm.currentRoom.name = resp.room_id;
-    vm.currentRoom.players = resp.players.players;
-    vm.currentRoom.admin = resp.players.admin;
+    vm.currentRoom.players = resp.players;
+    vm.currentRoom.admin = resp.admin;
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
     vm.chatMessages.push({sender: null,
-			  msg: `--Joined room ${resp.room_id}--`});
+			  msg: `--Joined room ${resp.room_id}--`,
+			  styles: {italic: true}});
     $rootScope.$apply();
     if (vm.currentRoom.name !== "lobby") {
       CommonData.getCollections(["investigators", "ancient_ones"],
@@ -104,6 +105,7 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   vm.enterLobby = function () {
     if (!vm.username) return;
+    if ($rootScope.channel) $rootScope.channel.leave();
     $rootScope.channel = $rootScope.socket.channel("rooms:lobby", {username: vm.username});
     $rootScope.channel.join()
       .receive("ok", resp => {

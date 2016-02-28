@@ -16,6 +16,9 @@
 	left: 250px;
 	right: 250px;
 	overflow-y: auto;
+	.chat-message.italic {
+	    font-style: italic;
+	}
     }
     .chat-input {
 	position: absolute;
@@ -27,12 +30,20 @@
 	right: 250px;
     }
     .pregame-options {
-	position: absolute;
+	position: relative;
 	top: 20px;
-	height: 50%;
+	height: 200px;
 	border: 1px solid black;
-	left: 250px;
-	right: 250px;
+	width: 31.5%;
+	float: left;
+    }
+    .entity-info {
+	position: relative;
+	top: 20px;
+	height: 200px;
+	border: 1px solid black;
+	width: 32%;
+	float: left
     }
     .rooms-list {
 	position: absolute;

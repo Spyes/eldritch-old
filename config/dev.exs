@@ -19,7 +19,7 @@ config :eldritch, Eldritch.Endpoint,
     patterns: [
       ~r{priv/static/.*(html|js|css|png|jpeg|jpg|gif|svg)$},
       ~r{priv/gettext/.*(po)$},
-			~r{web/static/views/*.(html)$},
+			~r{web/static/views/*.html$},
       ~r{web/views/.*(ex)$},
       ~r{web/templates/.*(eex)$}
     ]
