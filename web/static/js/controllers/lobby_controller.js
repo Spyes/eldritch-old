@@ -16,6 +16,7 @@ function LobbyController($rootScope, $controller, CommonData) {
   vm.newRoom = {name: "",
 		password: undefined,
 		max_players: 6};
+  vm.selectedInvestigators = {};
 
   function after_join(resp) {
     vm.currentRoom.name = resp.room_id;
@@ -52,6 +53,7 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function registerSocketEvents(channel) {
     channel.on("player:entered_room", payload => {
+      console.log(payload);
       vm.currentRoom.players = payload.players;
       $rootScope.$apply();
     });
@@ -65,6 +67,10 @@ function LobbyController($rootScope, $controller, CommonData) {
     });
     channel.on("rooms:names", payload => {
       vm.rooms = payload.rooms;
+      $rootScope.$apply();
+    });
+    channel.on("player_selected_investigator", payload => {
+      vm.selectedInvestigators = payload.selected_investigators;
       $rootScope.$apply();
     });
   };
@@ -93,14 +99,25 @@ function LobbyController($rootScope, $controller, CommonData) {
         alert(resp.error.msg);
       });
   };
+
   vm.clickRoom = function (index) {
     if (vm.rooms[index] === vm.currentRoom.name) return;
     vm.selectedRoom = vm.rooms[index];
   };
+
   vm.joinSelectedRoom = function () {
     if (!vm.selectedRoom) return;
     if (vm.selectedRoom === "lobby") vm.enterLobby();
     else change_channel();
+  };
+
+  vm.clickInvestigator = function (investigator) {
+    $rootScope.channel.push("player_selected_investigator", {username: vm.username, investigator: investigator.name});
+  };
+
+  vm.investigatorSelectedBy = function (investigator) {
+    if (vm.selectedInvestigators[investigator.name] === undefined) return "";
+    return "[" + vm.selectedInvestigators[investigator.name] + "]";
   };
 
   vm.enterLobby = function () {

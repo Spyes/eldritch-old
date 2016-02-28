@@ -14,12 +14,11 @@
     </div>
   </div>
   <div class="pregame-options" ng-if="vm.currentRoom.name !== 'lobby'">
-    <div ng-repeat="investigator in investigators">
-      {{investigator.name}}
+    <div class="investigator" ng-repeat="investigator in investigators" ng-click="vm.clickInvestigator(investigator)">
+      {{investigator.name}} {{vm.investigatorSelectedBy(investigator)}}
     </div>
   </div>
-  <div class="entity-info" ng-if="vm.currentRoom.name !== 'lobby'">
-
+  <div class="entity-info" ng-if="vm.currentRoom.name !== 'lobby'">    
   </div>
   <div class="chat-window"
        ng-class="{'in-lobby': vm.currentRoom.name === 'lobby',

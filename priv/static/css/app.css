@@ -9131,17 +9131,12 @@ button.close {
   position: relative;
   top: 20px;
   height: 200px;
+  left: 250px;
   border: 1px solid black;
-  width: 31.5%;
+  width: 350px;
   float: left; }
-
-.lobby .entity-info {
-  position: relative;
-  top: 20px;
-  height: 200px;
-  border: 1px solid black;
-  width: 32%;
-  float: left; }
+  .lobby .pregame-options .investigator {
+    cursor: pointer; }
 
 .lobby .rooms-list {
   position: absolute;

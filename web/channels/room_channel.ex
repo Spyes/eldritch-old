@@ -64,6 +64,13 @@ defmodule Eldritch.RoomChannel do
 		{:noreply, socket}
 	end
 
+  def handle_in("player_selected_investigator", %{"username" => username, "investigator" => investigator}, socket) do
+    room = socket.assigns[:room]
+    selected_investigators = Server.player_selected_investigator(username, room, investigator)
+    broadcast! socket, "player_selected_investigator", selected_investigators
+    {:noreply, socket}
+  end
+
 	def handle_in("player_ready", params, socket) do
 		alias Eldritch.Player
 		player = %Player{username: params["username"], investigator: params["investigator"], ready: True}

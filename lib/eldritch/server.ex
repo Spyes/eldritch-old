@@ -23,16 +23,20 @@ defmodule Eldritch.Server do
 		GenServer.call __MODULE__, {:create_room, room_id, username}
 	end
 
+  def player_selected_investigator(username, where, investigator) do
+    GenServer.call __MODULE__, {:player_selected_investigator, username, where, investigator}
+  end
+
 	def get_all_room_names do
 		GenServer.call __MODULE__, :get_all_room_names
 	end
 	
 	### GenServer implementation
 	def handle_cast({:player_joined, where, username}, rooms) do
-		if rooms[where] do
-      {:noreply, Map.put(rooms, where, Map.put(rooms[where], :players, rooms[where][:players] ++ [username]))}
+		case rooms[where] do
+      nil -> {:noreply, rooms}
+      _ -> {:noreply, Map.put(rooms, where, Map.put(rooms[where], :players, rooms[where][:players] ++ [username]))}
     end
-		{:noreply, rooms}
 	end
   def handle_cast({:player_left, where, username}, rooms) do
     {:noreply, Map.put(rooms, where, Map.put(rooms[where], :players, rooms[where][:players] -- [username]))}
@@ -50,4 +54,8 @@ defmodule Eldritch.Server do
 	def handle_call(:get_all_room_names, _from, rooms) do
 		{:reply, Map.keys(rooms), rooms}
 	end
+  def handle_call({:player_selected_investigator, username, where, investigator}, _from, rooms) do
+    selected_investigators = Map.update(rooms[where], :selected_investigators, %{investigator => username}, %{investigator => username})
+    {:reply, selected_investigators, Map.put(rooms, where, selected_investigators)}
+  end
 end
