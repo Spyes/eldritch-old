@@ -3,23 +3,23 @@ defmodule Eldritch.RoomChannel do
 	alias Eldritch.Server
 	require IEx
 
-	def join("rooms:" <> room_id, params, socket) do
-		String.to_atom(room_id) |> Server.player_joined(params["username"])
-		players = String.to_atom(room_id) |> Server.get_all_players
+	def join("rooms:" <> room, params, socket) do
+		String.to_atom(room) |> Server.player_joined(params["username"])
+		players = String.to_atom(room) |> Server.get_all_players_in_room
 		send(self, :after_join)
     socket = assign(socket, :username, params["username"])
-		{:ok, %{players: players[:players], admin: players[:admin], room_id: room_id}, assign(socket, :room, String.to_atom(room_id))}
+		{:ok, put_in(players, [:room], room), assign(socket, :room, String.to_atom(room))}
 	end
   def terminate(_params, socket) do
     socket.assigns[:room] |> Server.player_left(socket.assigns[:username])
-    players = socket.assigns[:room] |> Server.get_all_players
-    broadcast! socket, "players_in_room", %{players: players[:players], admin: players[:admin]}
+    players = socket.assigns[:room] |> Server.get_all_players_in_room
+    broadcast! socket, "players_in_room", %{players: players}
     {:ok, socket}
   end
 	
 	def handle_info(:after_join, socket) do
-		players = Server.get_all_players(socket.assigns[:room])
-		broadcast! socket, "player:entered_room", %{players: players[:players], admin: players[:admin]}
+		players = Server.get_all_players_in_room(socket.assigns[:room])
+		broadcast! socket, "player:entered_room", %{players: players}
 		{:noreply, socket}
 	end
 
@@ -67,7 +67,7 @@ defmodule Eldritch.RoomChannel do
   def handle_in("player_selected_investigator", %{"username" => username, "investigator" => investigator}, socket) do
     room = socket.assigns[:room]
     selected_investigators = Server.player_selected_investigator(username, room, investigator)
-    broadcast! socket, "player_selected_investigator", selected_investigators
+    broadcast! socket, "player_selected_investigator", %{selected_investigators: selected_investigators}
     {:noreply, socket}
   end
 

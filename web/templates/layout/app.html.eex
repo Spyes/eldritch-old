@@ -14,6 +14,7 @@
     <script>
       System.import('angular');
       System.import('angular-ui-router');
+      System.import('lodash');
       System.import('js/app');
     </script>
   </head>

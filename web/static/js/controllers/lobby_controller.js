@@ -19,16 +19,15 @@ function LobbyController($rootScope, $controller, CommonData) {
   vm.selectedInvestigators = {};
 
   function after_join(resp) {
-    vm.currentRoom.name = resp.room_id;
-    vm.currentRoom.players = resp.players;
-    vm.currentRoom.admin = resp.admin;
+    console.log(resp);
+    vm.currentRoom = resp;
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
     vm.chatMessages.push({sender: null,
 			  msg: `--Joined room ${resp.room_id}--`,
 			  styles: {italic: true}});
     $rootScope.$apply();
-    if (vm.currentRoom.name !== "lobby") {
+    if (vm.currentRoom.room !== "lobby") {
       CommonData.getCollections(["investigators", "ancient_ones"],
 			       $rootScope.channel,
 			       payload => {
@@ -36,7 +35,7 @@ function LobbyController($rootScope, $controller, CommonData) {
 				 $rootScope.$apply();
 			       });
     }
-    console.log("Joined " + vm.newRoom.name + " successfully", resp);
+    //console.log("Joined " + vm.newRoom.name + " successfully", resp);
   };
 
   function change_channel(room = vm.selectedRoom) {
@@ -48,17 +47,16 @@ function LobbyController($rootScope, $controller, CommonData) {
       .receive("ok", resp => {
         after_join(resp);
       })
-      .receive("error", resp => { console.log("Unable to join", resp) });
+      .receive("error", resp => { alert("Unable to join") });
   }
 
   function registerSocketEvents(channel) {
     channel.on("player:entered_room", payload => {
-      console.log(payload);
-      vm.currentRoom.players = payload.players;
+      vm.currentRoom = payload;
       $rootScope.$apply();
     });
     channel.on("players_in_room", payload => {
-      vm.currentRoom.players = payload.players;
+      vm.currentRoom = payload;
       $rootScope.$apply();
     });
     channel.on("player:sent_message", payload => {
@@ -70,7 +68,7 @@ function LobbyController($rootScope, $controller, CommonData) {
       $rootScope.$apply();
     });
     channel.on("player_selected_investigator", payload => {
-      vm.selectedInvestigators = payload.selected_investigators;
+      vm.currentRoom.selected_investigators = payload.selected_investigators;
       $rootScope.$apply();
     });
   };
@@ -101,7 +99,7 @@ function LobbyController($rootScope, $controller, CommonData) {
   };
 
   vm.clickRoom = function (index) {
-    if (vm.rooms[index] === vm.currentRoom.name) return;
+    if (vm.rooms[index] === vm.currentRoom.room) return;
     vm.selectedRoom = vm.rooms[index];
   };
 
@@ -116,8 +114,8 @@ function LobbyController($rootScope, $controller, CommonData) {
   };
 
   vm.investigatorSelectedBy = function (investigator) {
-    if (vm.selectedInvestigators[investigator.name] === undefined) return "";
-    return "[" + vm.selectedInvestigators[investigator.name] + "]";
+    if (_.isUndefined(vm.currentRoom.selected_investigators) || _.isUndefined(vm.currentRoom.selected_investigators[investigator.name])) return "";
+    return "[" + vm.currentRoom.selected_investigators[investigator.name] + "]";
   };
 
   vm.enterLobby = function () {
@@ -129,7 +127,7 @@ function LobbyController($rootScope, $controller, CommonData) {
         after_join(resp);
 	vm.showLobby = true;
       })
-      .receive("error", resp => { console.log("Unable to join", resp); });
+      .receive("error", resp => { alert("Unable to join!"); });
     $rootScope.channel.push("rooms:all", {});
   };
 }

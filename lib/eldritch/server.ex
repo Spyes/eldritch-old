@@ -14,8 +14,8 @@ defmodule Eldritch.Server do
     GenServer.cast __MODULE__, {:player_left, where, username}
   end
 
-	def get_all_players(where) when is_atom(where) do
-		GenServer.call __MODULE__, {:get_all_players, where}
+	def get_all_players_in_room(where) when is_atom(where) do
+		GenServer.call __MODULE__, {:get_all_players_in_room, where}
 	end
 
   def create_room(room_id, username)
@@ -44,18 +44,21 @@ defmodule Eldritch.Server do
 
 	def handle_call({:create_room, room_id, creator}, _from, rooms) do
     case rooms[room_id] do
-		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> %{players: [], admin: creator} end)}
+		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> %{players: [], admin: creator, selected_investigators: %{}} end)}
 		  _   -> {:reply, {:error, %{msg: "Room name already taken!"}}, rooms} 
     end
 	end
-	def handle_call({:get_all_players, where}, _from, rooms) do
+	def handle_call({:get_all_players_in_room, where}, _from, rooms) do
 		{:reply, rooms[where], rooms}
 	end
 	def handle_call(:get_all_room_names, _from, rooms) do
 		{:reply, Map.keys(rooms), rooms}
 	end
   def handle_call({:player_selected_investigator, username, where, investigator}, _from, rooms) do
-    selected_investigators = Map.update(rooms[where], :selected_investigators, %{investigator => username}, %{investigator => username})
-    {:reply, selected_investigators, Map.put(rooms, where, selected_investigators)}
+		case rooms[where][:selected_investigators][investigator] do
+			nil -> selected_investigators = put_in(rooms[where][:selected_investigators][investigator], username)
+			_   -> selected_investigators = update_in(rooms[where][:selected_investigators][investigator], fn _ -> username end)
+		end
+    {:reply, selected_investigators[where][:selected_investigators], selected_investigators}
   end
 end

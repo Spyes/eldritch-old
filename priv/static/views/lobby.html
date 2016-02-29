@@ -6,24 +6,24 @@
 </div>
 <div ng-if="vm.showLobby" class="lobby">
   <div class="title">
-    <label>{{vm.currentRoom.name}}</label>
+    <label>{{vm.currentRoom.room}}</label>
   </div>
   <div class="player-list">
-    <div ng-repeat="player in vm.currentRoom.players" class="player">
-      {{player}} <span ng-if="vm.currentRoom.admin === player"><i class="fa fa-star"></i></span>
+    <div ng-repeat="player in vm.currentRoom.players.players track by $index" class="player">
+      {{player}} <span ng-if="vm.currentRoom.players.admin === player"><i class="fa fa-star"></i></span>
     </div>
   </div>
-  <div class="pregame-options" ng-if="vm.currentRoom.name !== 'lobby'">
-    <div class="investigator" ng-repeat="investigator in investigators" ng-click="vm.clickInvestigator(investigator)">
+  <div class="pregame-options" ng-if="vm.currentRoom.room !== 'lobby'">
+    <div class="investigator" ng-repeat="investigator in investigators track by $index" ng-click="vm.clickInvestigator(investigator)">
       {{investigator.name}} {{vm.investigatorSelectedBy(investigator)}}
     </div>
   </div>
-  <div class="entity-info" ng-if="vm.currentRoom.name !== 'lobby'">    
+  <div class="entity-info" ng-if="vm.currentRoom.room !== 'lobby'">    
   </div>
   <div class="chat-window"
-       ng-class="{'in-lobby': vm.currentRoom.name === 'lobby',
-		 'in-game-room': vm.currentRoom.name !== 'lobby'}">
-    <div class="chat-message" ng-repeat="message in vm.chatMessages" ng-class="{{message.styles}}">
+       ng-class="{'in-lobby': vm.currentRoom.room === 'lobby',
+		 'in-game-room': vm.currentRoom.room !== 'lobby'}">
+    <div class="chat-message" ng-repeat="message in vm.chatMessages track by $index" ng-class="{{message.styles}}">
       <span class="sender" ng-if="message.sender">[{{message.sender}}]:</span>
       <span class="message">{{message.msg}}</span>
     </div>
@@ -43,7 +43,7 @@
     </div>
     <div ng-if="!vm.showNewRoomForm">
       <div ng-repeat="room in vm.rooms track by $index" class="room"
-           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room, current: vm.currentRoom.name === room}">
+           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room, current: vm.currentRoom.room === room}">
 	{{room}}
       </div>
     </div>
