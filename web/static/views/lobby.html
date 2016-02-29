@@ -17,6 +17,10 @@
     <div class="investigator" ng-repeat="investigator in investigators track by $index" ng-click="vm.clickInvestigator(investigator)">
       {{investigator.name}} {{vm.investigatorSelectedBy(investigator)}}
     </div>
+    <hr/>
+    <div class="ancient_one" ng-repeat="ancient_one in ancient_ones track by $index" ng-click="vm.clickAncientOne(ancient_one)">
+      {{ancient_one.name}} {{vm.isAncientOneSelected(ancient_one)}}
+    </div>
   </div>
   <div class="entity-info" ng-if="vm.currentRoom.room !== 'lobby'">    
   </div>

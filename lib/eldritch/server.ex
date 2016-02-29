@@ -3,7 +3,7 @@ defmodule Eldritch.Server do
 
 	### External API
 	def start_link do
-		GenServer.start_link __MODULE__, %{lobby: %{players: [], admin: ""}}, name: __MODULE__
+		GenServer.start_link __MODULE__, %{lobby: %{players: [], admin: "", ancient_one: ""}}, name: __MODULE__
 	end
 
 	def player_joined(where, username) when is_atom(where) do
@@ -18,6 +18,10 @@ defmodule Eldritch.Server do
 		GenServer.call __MODULE__, {:get_all_players_in_room, where}
 	end
 
+  def get_room_admin(where) when is_atom(where) do
+    GenServer.call __MODULE__, {:get_room_admin, where}
+  end
+
   def create_room(room_id, username)
 	when is_atom(room_id) and is_bitstring(username) do
 		GenServer.call __MODULE__, {:create_room, room_id, username}
@@ -25,6 +29,10 @@ defmodule Eldritch.Server do
 
   def player_selected_investigator(username, where, investigator) do
     GenServer.call __MODULE__, {:player_selected_investigator, username, where, investigator}
+  end
+
+  def selected_ancient_one(where, ancient_one) do
+    GenServer.call __MODULE__, {:selected_ancient_one, where, ancient_one}
   end
 
 	def get_all_room_names do
@@ -48,17 +56,34 @@ defmodule Eldritch.Server do
 		  _   -> {:reply, {:error, %{msg: "Room name already taken!"}}, rooms} 
     end
 	end
+
 	def handle_call({:get_all_players_in_room, where}, _from, rooms) do
 		{:reply, rooms[where], rooms}
 	end
+
+  def handle_call({:get_room_admin, where}, _from, rooms) do
+    {:reply, rooms[where][:admin], rooms}
+  end
+
 	def handle_call(:get_all_room_names, _from, rooms) do
 		{:reply, Map.keys(rooms), rooms}
 	end
+
   def handle_call({:player_selected_investigator, username, where, investigator}, _from, rooms) do
-		case rooms[where][:selected_investigators][investigator] do
-			nil -> selected_investigators = put_in(rooms[where][:selected_investigators][investigator], username)
-			_   -> selected_investigators = update_in(rooms[where][:selected_investigators][investigator], fn _ -> username end)
-		end
+    selected_investigators =
+		  case rooms[where][:selected_investigators][investigator] do
+			  nil -> put_in(rooms[where][:selected_investigators][investigator], username)
+			  _   -> update_in(rooms[where][:selected_investigators][investigator], fn _ -> username end)
+		  end
     {:reply, selected_investigators[where][:selected_investigators], selected_investigators}
+  end
+
+  def handle_call({:selected_ancient_one, where, ancient_one}, _from, rooms) do
+    ancient_one =
+      case rooms[where][:selected_ancient_one] do
+        nil -> put_in(rooms[where][:selected_ancient_one], ancient_one)
+        _   -> update_in(rooms[where][:selected_ancient_one], fn _ -> ancient_one end)
+      end
+    {:reply, ancient_one[where][:selected_ancient_one], ancient_one}
   end
 end

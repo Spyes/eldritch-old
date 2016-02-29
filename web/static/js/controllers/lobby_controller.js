@@ -50,11 +50,11 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function registerSocketEvents(channel) {
     channel.on("player:entered_room", payload => {
-      vm.currentRoom = payload;
+      vm.currentRoom.players = payload;
       $rootScope.$apply();
     });
     channel.on("players_in_room", payload => {
-      vm.currentRoom = payload;
+      vm.currentRoom.players = payload;
       $rootScope.$apply();
     });
     channel.on("player:sent_message", payload => {
@@ -69,8 +69,16 @@ function LobbyController($rootScope, $controller, CommonData) {
       vm.currentRoom.selected_investigators = payload.selected_investigators;
       $rootScope.$apply();
     });
+    channel.on("selected_ancient_one", payload => {
+      vm.currentRoom.ancient_one = payload.ancient_one;
+      $rootScope.$apply();
+    });
   };
   
+  function isAdmin(player) {
+    return vm.currentRoom.admin === player;
+  }
+
   vm.sendChatMessage = function () {
     $rootScope.channel.push("player:sent_message", {msg: vm.chat_message});
     vm.chat_message = "";
@@ -108,13 +116,22 @@ function LobbyController($rootScope, $controller, CommonData) {
   };
 
   vm.clickInvestigator = function (investigator) {
-    $rootScope.channel.push("player_selected_investigator", {username: vm.username, investigator: investigator.name});
+    $rootScope.channel.push("player_selected_investigator", {investigator: investigator.name});
+  };
+
+  vm.clickAncientOne = function (ancient_one) {
+    if (!isAdmin(vm.username)) return;
+    $rootScope.channel.push("select_ancient_one", {ancient_one: ancient_one.name});
   };
 
   vm.investigatorSelectedBy = function (investigator) {
-    //if (_.isUndefined(vm.currentRoom.selected_investigators) || _.isUndefined(vm.currentRoom.selected_investigators[investigator.name])) return "";
-    //return "[" + vm.currentRoom.selected_investigators[investigator.name] + "]";
-return "[" + vm.currentRoom.players.selected_investigators[investigator.name] + "]";
+    if (_.isUndefined(vm.currentRoom.selected_investigators) || _.isUndefined(vm.currentRoom.selected_investigators[investigator.name])) return "";
+    return "[" + vm.currentRoom.selected_investigators[investigator.name] + "]";
+  };
+
+  vm.isAncientOneSelected = function (ancient_one) {
+    if (_.isUndefined(vm.currentRoom.ancient_one)) return "";
+    return "[selected]";
   };
 
   vm.enterLobby = function () {

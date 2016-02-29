@@ -13,13 +13,13 @@ defmodule Eldritch.RoomChannel do
   def terminate(_params, socket) do
     socket.assigns[:room] |> Server.player_left(socket.assigns[:username])
     players = socket.assigns[:room] |> Server.get_all_players_in_room
-    broadcast! socket, "players_in_room", %{players: players}
+    broadcast! socket, "players_in_room", players
     {:ok, socket}
   end
 	
 	def handle_info(:after_join, socket) do
 		players = Server.get_all_players_in_room(socket.assigns[:room])
-		broadcast! socket, "player:entered_room", %{players: players}
+		broadcast! socket, "player:entered_room", players
 		{:noreply, socket}
 	end
 
@@ -45,29 +45,32 @@ defmodule Eldritch.RoomChannel do
 	end
 	
 	def handle_in("get_collection", %{"coll" => coll}, socket) do
-		case coll do
-			"investigators" -> collection = Eldritch.Investigator
-			"locations" -> collection = Eldritch.Location
-			"ancient_ones" -> collection = Eldritch.AncientOne
+    collection =
+		  case coll do
+			  "investigators" -> Eldritch.Investigator
+			  "locations" -> Eldritch.Location
+			  "ancient_ones" -> Eldritch.AncientOne
         _ -> {:noreply, socket}
-		end
-		data = Eldritch.Repo.all(collection)
-		|> Enum.scan([], fn entity,_acc ->
-			collection.__schema__(:fields)
-			|> Enum.scan(%{},
-				fn (key,_acc) ->
-					{key, Map.get(entity, key)}
-				end)
-			|> Enum.into(%{})
-		end)
+		  end
+		data = get_from_repo(collection)
 		broadcast! socket, "sent_collection", %{collection: coll, data: data}
 		{:noreply, socket}
 	end
 
-  def handle_in("player_selected_investigator", %{"username" => username, "investigator" => investigator}, socket) do
+  def handle_in("player_selected_investigator", %{"investigator" => investigator}, socket) do
     room = socket.assigns[:room]
+    username = socket.assigns[:username]
     selected_investigators = Server.player_selected_investigator(username, room, investigator)
     broadcast! socket, "player_selected_investigator", %{selected_investigators: selected_investigators}
+    {:noreply, socket}
+  end
+
+  def handle_in("select_ancient_one", %{"ancient_one" => ancient_one}, socket) do
+    room = socket.assigns[:room]
+    username = socket.assigns[:username]
+    if Server.get_room_admin(room) !== username, do: {:noreply, socket}
+    Server.selected_ancient_one(room, ancient_one)
+    broadcast! socket, "selected_ancient_one", %{"ancient_one" => ancient_one}
     {:noreply, socket}
   end
 
@@ -80,4 +83,15 @@ defmodule Eldritch.RoomChannel do
 	defp all_players_ready?(room) do
 		Enum.all?(room.players.all, fn (player) -> player.ready end)
 	end
+  defp get_from_repo(collection) do
+    Eldritch.Repo.all(collection)
+		|> Enum.scan([], fn entity,_acc ->
+			collection.__schema__(:fields)
+			|> Enum.scan(%{},
+				fn (key,_acc) ->
+					{key, Map.get(entity, key)}
+				end)
+			|> Enum.into(%{})
+		end)
+  end
 end

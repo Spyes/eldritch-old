@@ -9135,7 +9135,8 @@ button.close {
   border: 1px solid black;
   width: 350px;
   float: left; }
-  .lobby .pregame-options .investigator {
+  .lobby .pregame-options .investigator,
+  .lobby .pregame-options .ancient_one {
     cursor: pointer; }
 
 .lobby .rooms-list {
