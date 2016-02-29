@@ -16,15 +16,13 @@ function LobbyController($rootScope, $controller, CommonData) {
   vm.newRoom = {name: "",
 		password: undefined,
 		max_players: 6};
-  vm.selectedInvestigators = {};
 
   function after_join(resp) {
-    console.log(resp);
     vm.currentRoom = resp;
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
     vm.chatMessages.push({sender: null,
-			  msg: `--Joined room ${resp.room_id}--`,
+			  msg: `--Joined room ${resp.room}--`,
 			  styles: {italic: true}});
     $rootScope.$apply();
     if (vm.currentRoom.room !== "lobby") {
@@ -114,8 +112,9 @@ function LobbyController($rootScope, $controller, CommonData) {
   };
 
   vm.investigatorSelectedBy = function (investigator) {
-    if (_.isUndefined(vm.currentRoom.selected_investigators) || _.isUndefined(vm.currentRoom.selected_investigators[investigator.name])) return "";
-    return "[" + vm.currentRoom.selected_investigators[investigator.name] + "]";
+    //if (_.isUndefined(vm.currentRoom.selected_investigators) || _.isUndefined(vm.currentRoom.selected_investigators[investigator.name])) return "";
+    //return "[" + vm.currentRoom.selected_investigators[investigator.name] + "]";
+return "[" + vm.currentRoom.players.selected_investigators[investigator.name] + "]";
   };
 
   vm.enterLobby = function () {
