@@ -80,10 +80,10 @@ defmodule Eldritch.Server do
 
   def handle_call({:selected_ancient_one, where, ancient_one}, _from, rooms) do
     ancient_one =
-      case rooms[where][:selected_ancient_one] do
-        nil -> put_in(rooms[where][:selected_ancient_one], ancient_one)
-        _   -> update_in(rooms[where][:selected_ancient_one], fn _ -> ancient_one end)
+      case rooms[where][:ancient_one] do
+        nil -> put_in(rooms[where][:ancient_one], ancient_one)
+        _   -> update_in(rooms[where][:ancient_one], fn _ -> ancient_one end)
       end
-    {:reply, ancient_one[where][:selected_ancient_one], ancient_one}
+    {:reply, ancient_one[where][:ancient_one], ancient_one}
   end
 end

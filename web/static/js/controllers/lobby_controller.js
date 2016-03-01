@@ -19,6 +19,7 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function after_join(resp) {
     vm.currentRoom = resp;
+    console.log(vm.currentRoom);
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
     vm.chatMessages.push({sender: null,
