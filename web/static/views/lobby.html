@@ -6,14 +6,16 @@
 </div>
 <div ng-if="vm.showLobby" class="lobby">
   <div class="title">
-    <label>{{vm.currentRoom.room}}</label>
+    <label>{{vm.currentRoom.name}}</label>
   </div>
   <div class="player-list">
-    <div ng-repeat="player in vm.currentRoom.players.players track by $index" class="player">
-      {{player}} <span ng-if="vm.currentRoom.players.admin === player"><i class="fa fa-star"></i></span>
+    <div ng-repeat="player in vm.currentRoom.players track by $index" class="player">
+      {{player}}
+      <span ng-if="vm.currentRoom.admin === player"><i class="fa fa-star"></i></span>
+      <span ng-if="vm.isPlayerReady(player)"><i class="fa fa-check"></i></span>
     </div>
   </div>
-  <div class="pregame-options" ng-if="vm.currentRoom.room !== 'lobby'">
+  <div class="pregame-options" ng-if="vm.currentRoom.name !== 'lobby'">
     <div class="investigator" ng-repeat="investigator in investigators track by $index" ng-click="vm.clickInvestigator(investigator)">
       {{investigator.name}} {{vm.investigatorSelectedBy(investigator)}}
     </div>
@@ -21,12 +23,14 @@
     <div class="ancient_one" ng-repeat="ancient_one in ancient_ones track by $index" ng-click="vm.clickAncientOne(ancient_one)">
       {{ancient_one.name}} {{vm.isAncientOneSelected(ancient_one)}}
     </div>
+    <hr/>
+    <a ng-click="vm.playerReady()" class="btn btn-success" href="">Ready <i class="fa fa-check" ng-if="vm.isPlayerReady(vm.username)"></i></a>
   </div>
-  <div class="entity-info" ng-if="vm.currentRoom.room !== 'lobby'">    
+  <div class="entity-info" ng-if="vm.currentRoom.name !== 'lobby'">    
   </div>
   <div class="chat-window"
-       ng-class="{'in-lobby': vm.currentRoom.room === 'lobby',
-		 'in-game-room': vm.currentRoom.room !== 'lobby'}">
+       ng-class="{'in-lobby': vm.currentRoom.name === 'lobby',
+		 'in-game-room': vm.currentRoom.name !== 'lobby'}">
     <div class="chat-message" ng-repeat="message in vm.chatMessages track by $index" ng-class="{{message.styles}}">
       <span class="sender" ng-if="message.sender">[{{message.sender}}]:</span>
       <span class="message">{{message.msg}}</span>
@@ -47,14 +51,14 @@
     </div>
     <div ng-if="!vm.showNewRoomForm">
       <div ng-repeat="room in vm.rooms track by $index" class="room"
-           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room, current: vm.currentRoom.room === room}">
+           ng-click="vm.clickRoom($index)" ng-class="{selected: vm.selectedRoom === room, current: vm.currentRoom.name === room}">
 	{{room}}
       </div>
     </div>
     <div class="action-buttons" ng-if="!vm.showNewRoomForm">
       <hr/>
-      <a href="" class="btn btn-primary" ng-click="vm.openNewRoomForm()">Create Room</a>
-      <a href="" class="btn btn-success" ng-click="vm.joinSelectedRoom()">Join Room</a>
+      <a ng-click="vm.openNewRoomForm()"  class="btn btn-primary" href="">Create Room</a>
+      <a ng-click="vm.joinSelectedRoom()" class="btn btn-success" href="">Join Room</a>
     </div>
   </div>
 </div>

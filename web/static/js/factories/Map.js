@@ -1,5 +1,7 @@
-angular.module('Eldritch')
+angular
+  .module('Eldritch')
   .factory('Map', Map);
+
 function Map() {
   'use strict';
 

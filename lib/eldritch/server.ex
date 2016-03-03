@@ -3,7 +3,7 @@ defmodule Eldritch.Server do
 
 	### External API
 	def start_link do
-		GenServer.start_link __MODULE__, %{lobby: %{players: [], admin: "", ancient_one: ""}}, name: __MODULE__
+		GenServer.start_link __MODULE__, %{lobby: %{name: "lobby", players: [], admin: ""}}, name: __MODULE__
 	end
 
 	def player_joined(where, username) when is_atom(where) do
@@ -14,6 +14,10 @@ defmodule Eldritch.Server do
     GenServer.cast __MODULE__, {:player_left, where, username}
   end
 
+  def get_room(room_id) when is_atom(room_id) do
+    GenServer.call __MODULE__, {:get_room, room_id}
+  end
+  
 	def get_all_players_in_room(where) when is_atom(where) do
 		GenServer.call __MODULE__, {:get_all_players_in_room, where}
 	end
@@ -35,6 +39,10 @@ defmodule Eldritch.Server do
     GenServer.call __MODULE__, {:selected_ancient_one, where, ancient_one}
   end
 
+  def player_ready(where, username) do
+    GenServer.call __MODULE__, {:player_ready, where, username}
+  end
+
 	def get_all_room_names do
 		GenServer.call __MODULE__, :get_all_room_names
 	end
@@ -50,15 +58,19 @@ defmodule Eldritch.Server do
     {:noreply, Map.put(rooms, where, Map.put(rooms[where], :players, rooms[where][:players] -- [username]))}
   end
 
+  def handle_call({:get_room, room_id}, _from, rooms) do
+    {:reply, rooms[room_id], rooms}
+  end
+  
 	def handle_call({:create_room, room_id, creator}, _from, rooms) do
     case rooms[room_id] do
-		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> %{players: [], admin: creator, selected_investigators: %{}} end)}
+		  nil -> {:reply, :ok, update_in(rooms[room_id], fn _ -> %{name: room_id, players: [], admin: creator, selected_investigators: %{}, ready: []} end)}
 		  _   -> {:reply, {:error, %{msg: "Room name already taken!"}}, rooms} 
     end
 	end
 
 	def handle_call({:get_all_players_in_room, where}, _from, rooms) do
-		{:reply, rooms[where], rooms}
+		{:reply, rooms[where][:players], rooms}
 	end
 
   def handle_call({:get_room_admin, where}, _from, rooms) do
@@ -85,5 +97,14 @@ defmodule Eldritch.Server do
         _   -> update_in(rooms[where][:ancient_one], fn _ -> ancient_one end)
       end
     {:reply, ancient_one[where][:ancient_one], ancient_one}
+  end
+
+  def handle_call({:player_ready, where, username}, _from, rooms) do
+    players_ready = Map.put(rooms,
+                            where,
+                            Map.put(rooms[where],
+                                    :ready,
+                                    rooms[where][:ready] ++ [username]))
+    {:reply, players_ready[where][:ready], players_ready}
   end
 end

@@ -1,9 +1,9 @@
-<div>
+<div ng-init="vm.init()">
   <img src="images/eldritch_horror_map_resized.png" usemap="#Map"/>
   <map name="Map" id="Map">
     <area ng-repeat="location in locations" shape="circle" coords="{{vm.locationCoords(location)}}" ng-click="vm.clickLocation(location)" />
   </map>
   <div class="location-info" ng-repeat="location in locations" ng-style="vm.getLocationStyle(location)">
-    <div class="player" ng-if="isLocationInhabited(location, 'investigator')">{{locationInhabitants(location, 'investigators')}}</div>
+    <div class="investigator">{{vm.investigatorAt(location.name)}}</div>
   </div>
 </div>

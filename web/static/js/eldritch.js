@@ -20,7 +20,10 @@ angular
       .state('board', {
 	url: '/board',
 	templateUrl: "views/board.html",
-	controller: "BoardController as vm"
+	controller: "BoardController as vm",
+        params: {room: {},
+                 username: "",
+                 investigators: {}}
       });
   })
   .run(function ($rootScope) {

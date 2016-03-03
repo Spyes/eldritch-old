@@ -2,7 +2,7 @@ angular
   .module('Eldritch')
   .controller('LobbyController', LobbyController);
 
-function LobbyController($rootScope, $controller, CommonData) {
+function LobbyController($rootScope, $controller, CommonData, $state) {
   var vm = this;
   $controller('GameController', {$scope: vm});
   vm.showLobby = false;
@@ -19,14 +19,13 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function after_join(resp) {
     vm.currentRoom = resp;
-    console.log(vm.currentRoom);
     registerSocketEvents($rootScope.channel);
     vm.showNewRoomForm = false;
     vm.chatMessages.push({sender: null,
-			  msg: `--Joined room ${resp.room}--`,
+			  msg: `--Joined room ${resp.name}--`,
 			  styles: {italic: true}});
     $rootScope.$apply();
-    if (vm.currentRoom.room !== "lobby") {
+    if (vm.currentRoom.name !== "lobby") {
       CommonData.getCollections(["investigators", "ancient_ones"],
 			       $rootScope.channel,
 			       payload => {
@@ -51,11 +50,11 @@ function LobbyController($rootScope, $controller, CommonData) {
 
   function registerSocketEvents(channel) {
     channel.on("player:entered_room", payload => {
-      vm.currentRoom.players = payload;
+      vm.currentRoom.players = payload.players;
       $rootScope.$apply();
     });
     channel.on("players_in_room", payload => {
-      vm.currentRoom.players = payload;
+      vm.currentRoom = payload;
       $rootScope.$apply();
     });
     channel.on("player:sent_message", payload => {
@@ -73,6 +72,17 @@ function LobbyController($rootScope, $controller, CommonData) {
     channel.on("selected_ancient_one", payload => {
       vm.currentRoom.ancient_one = payload.ancient_one;
       $rootScope.$apply();
+    });
+    channel.on("player_ready", payload => {
+      vm.currentRoom.ready = payload.players_ready;
+      $rootScope.$apply();
+    });
+    channel.on("all_players_ready", payload => {
+      var params = {room: vm.currentRoom,
+                    username: vm.username,
+                    investigators: payload.investigators};
+      $state.go('board', params);
+//      $rootScope.$apply();
     });
   };
   
@@ -106,7 +116,7 @@ function LobbyController($rootScope, $controller, CommonData) {
   };
 
   vm.clickRoom = function (index) {
-    if (vm.rooms[index] === vm.currentRoom.room) return;
+    if (vm.rooms[index] === vm.currentRoom.name) return;
     vm.selectedRoom = vm.rooms[index];
   };
 
@@ -135,6 +145,18 @@ function LobbyController($rootScope, $controller, CommonData) {
     return "[selected]";
   };
 
+  vm.playerReady = function () {
+    if (vm.player_ready) return;
+    $rootScope.channel.push("player_ready", {});
+    vm.player_ready = true;
+  };
+
+  vm.isPlayerReady = function (player) {
+    if (_.isUndefined(vm.currentRoom.ready)) return false;
+    if (_.indexOf(vm.currentRoom.ready, player) > -1) return true;
+    return false;
+  };
+  
   vm.enterLobby = function () {
     if (!vm.username) return;
     if ($rootScope.channel) $rootScope.channel.leave();
