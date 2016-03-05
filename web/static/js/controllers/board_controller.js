@@ -24,15 +24,15 @@ function BoardController($controller, $rootScope, Map, $stateParams, CommonData,
     return Map.getLocationStyle(location);
   };
 
-  vm.clickLocation = function (location) {
-    console.log(location);
+  vm.clickLocation = function (location_name) {
+    $rootScope.channel.push("player_clicked_location", {location_name: location_name});
   };
 
   $scope.$watch(
     function watchInvestigators(scope) {
       return vm.investigators;
     },
-    function handleInvestigatorsChange(n, o) {
+    function handleInvestigatorsChange(n) {
       if (_.isEmpty(n)) return;
       vm.locations = {};
       _.forEach(vm.investigators, investigator => {

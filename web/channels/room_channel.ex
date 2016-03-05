@@ -102,6 +102,10 @@ defmodule Eldritch.RoomChannel do
     send(self, :after_ready)
     {:noreply, assign(socket, :ready, true)}
 	end
+
+  def handle_in("player_clicked_location", %{"location_name" => location_name}, socket) do
+    username = socket.assigns[:username]
+  end
   
   defp all_players_ready?(room) do
     room = Server.get_room(room)
